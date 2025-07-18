@@ -1,9 +1,11 @@
 from pathlib import Path
+
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 # load nab data into a dictionary
-def load_nab():
+def load_nab(file_path=None):
     nab_data_folder = Path('data/nab_data_corpus')
     nab_data = {}
     for dir in nab_data_folder.glob('*'):
@@ -29,6 +31,36 @@ def plot_folder_files(folder):
         nab_data[folder][file]['df'].plot(x='timestamp', y='value', ax=axes[index], title=file, legend=False)
     plt.tight_layout(pad=2.0)
 
+def distort_time_series(df, anoms=['zero'], return_anomalies=False, max_length=108):
+    distorted = df.copy()
+    original_values = distorted['value']
+    distort_length = np.random.randint(1, max_length)
+
+    distorted_values = original_values * 0.95 + original_values.std()*0.1*np.random.choice([1, -1])
+    distorted['value'] = distorted_values
+
+    all_anomalies = distorted.timestamp.to_frame()
+    all_anomalies['value'] = 0
+    if type(anoms) is str:
+        anom_key = anoms
+        anoms = []
+        anoms.append(anom_key)
+    for anom_id in range(len(anoms)):
+        start_idx = np.random.randint(int(0.7*distorted['timestamp'].size), distorted['timestamp'].size-distort_length)
+
+        anomaly_types = {'zero': 0, 'minor_drop': 0.95, 'moderate_drop': 0.7, 'severe_drop': 0.35, 'critical_drop': 0.15}
+
+        anomaly_values = distorted.loc[start_idx:start_idx+distort_length, "value"] * anomaly_types[anoms[anom_id]]
+        distorted.loc[start_idx:start_idx+distort_length, "value"] = anomaly_values
+
+
+        if return_anomalies:
+            all_anomalies.loc[start_idx:start_idx+distort_length, 'value'] = 1
+    if not return_anomalies:
+        return distorted
+
+    # returns dataframes
+    return distorted, all_anomalies
 
 class ThresholdConfig:
     def __init__(self, input_series: pd.DataFrame):
