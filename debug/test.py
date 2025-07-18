@@ -12,7 +12,7 @@ from darts import TimeSeries
 from forecasters import LinearRegression
 from scorers import EuclideanScorer
 from thresholds import StaticThreshold
-from meta_anomaly_detector import NABAnomalyDetector
+from nab_anomaly_detector import NABAnomalyDetector
 from nab_utils import distort_time_series
 
 

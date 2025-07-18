@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from forecasters import LinearRegression, NaiveSeasonal
 from scorers import EuclideanScorer
 from thresholds import StaticThreshold, RollingWindowThreshold, ZScoreThreshold
-from meta_anomaly_detector import NABAnomalyDetector
+from nab_anomaly_detector import NABAnomalyDetector
 from nab_utils import distort_time_series, load_nab
 
 # Set random seed for reproducibility
